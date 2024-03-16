@@ -1,29 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
+
+from models import db, User
 
 app = Flask(__name__)
 db_uri = 'sqlite:///c:\\dev\\test_task\\electro_flask_test_task\\users.db'
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
-db = SQLAlchemy(app)
-
-
-class User(db.Model):
-    """Модель базы данных"""
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
-
-    def __repr__(self):
-        return "<{}:{}>".format(self.id, self.username)
-
-    def set_password(self, password: str) -> None:
-        """Хэшируем пароль пользователя"""
-        self.password = generate_password_hash(password)
-
-    def check_password(self,  password: str) -> bool:
-        """Проверка пароля пользователя"""
-        return check_password_hash(self.password, password)
+db.init_app(app)
 
 
 @app.route('/register', methods=['GET', 'POST'])
