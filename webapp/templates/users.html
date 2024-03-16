@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Пользователи</title>
+</head>
+<body>
+    <h1>Список пользователей</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Имя пользователя</th>
+            <th>Действия</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>
+                <a href="{{ url_for('update_user', user_id=user.id) }}">Изменить</a>
+                <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" style="display: inline;">
+                    <button type="submit">Удалить</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{{ url_for('create_user') }}">Создать нового пользователя</a>
+</body>
+</html>

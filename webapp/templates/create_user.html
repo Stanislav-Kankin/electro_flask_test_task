@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Создать пользователя</title>
+</head>
+<body>
+    <h1>Создание нового пользователя</h1>
+    <form action="{{ url_for('create_user') }}" method="POST">
+        <label for="username">Имя пользователя:</label>
+        <input type="text" name="username" required>
+        <br>
+        <label for="password">Пароль:</label>
+        <input type="password" name="password" required>
+        <br>
+        <button type="submit">Создать пользователя</button>
+    </form>
+</body>
+</html>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -11,7 +11,7 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(32), nullable=False)
+    password = db.Column(db.String(100), nullable=False)
 
     def __repr__(self):
         return "<{}:{}>".format(self.id, self.username)
@@ -33,7 +33,7 @@ def register():
             new_user.set_password(password)
             db.session.add(new_user)
             db.session.commit()
-            return 'Пользователь зарегистрирован'
+            return redirect(url_for('login'))
     return render_template('register_form.html')
 
 
@@ -45,10 +45,52 @@ def login():
         if username and password:
             user = User.query.filter_by(username=username).first()
             if user and user.check_password(password):
-                return f'Welcome, {username}'
+                return render_template('welcome.html', username=username)
             else:
                 return 'Неправильное имя пользователя или пароль'
-    return render_template('confirm_form.html')
+    return render_template('login_form.html')
+
+
+@app.route('/users')
+def users():
+    all_users = User.query.all()
+    return render_template('users.html', users=all_users)
+
+
+@app.route('/users/create', methods=['GET', 'POST'])
+def create_user():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        if username and password:
+            new_user = User(username=username)
+            new_user.set_password(password)
+            db.session.add(new_user)
+            db.session.commit()
+            return redirect(url_for('users'))
+    return render_template('create_user.html')
+
+
+@app.route('/users/<int:user_id>/update', methods=['GET', 'POST'])
+def update_user(user_id):
+    user = User.query.get_or_404(user_id)
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        if username and password:
+            user.username = username
+            user.set_password(password)
+            db.session.commit()
+            return redirect(url_for('users'))
+    return render_template('update_user.html', user=user)
+
+
+@app.route('/users/<int:user_id>/delete', methods=['POST'])
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    return redirect(url_for('users'))
 
 
 if __name__ == '__main__':
